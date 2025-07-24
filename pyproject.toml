@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "manage-stocks"
+version = "0.1.0"
+description = ""
+authors = ["Luiz Campos <luizcampos3310@gmail.com>"]
+packages = [{ include = "app" }]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.13"
+fastapi = "^0.116.1"
+uvicorn = { version = "^0.35.0", extras = ["standard"] }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = ["B", "E", "F", "I"]
+fixable = ["ALL"]
