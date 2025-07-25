@@ -1,5 +1,3 @@
-# Makefile
-
 run:
 	poetry run python app/run.py
 
