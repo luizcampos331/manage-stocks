@@ -1,15 +1,7 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from dotenv import load_dotenv
 
-app = FastAPI(
-    title="Manage Stocks API",
-    description="API for querying and registering stocks",
-    version="0.1.0",
-    contact={"name": "Luiz Campos", "email": "luizcampos331@gmail.com"},
-    license_info={"name": "MIT"},
-)
+load_dotenv()
 
+from app.presentation.http.app import create_app  # noqa: E402
 
-@app.get("/", response_class=JSONResponse)
-async def root():
-    return "API Account Transactions 0.1.0"
+app = create_app()

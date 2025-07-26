@@ -1,9 +1,6 @@
 run:
 	poetry run python app/run.py
 
-reload:
-	poetry run uvicorn app.main:app --reload
-
 test:
 	poetry run pytest
 
@@ -21,3 +18,28 @@ install:
 
 lock:
 	poetry lock
+
+# Alembic commands
+migrate:
+	poetry run alembic upgrade head
+
+migrate-create:
+	poetry run alembic revision -m "$(message)"
+
+migrate-current:
+	poetry run alembic current
+
+migrate-history:
+	poetry run alembic history
+
+migrate-downgrade:
+	poetry run alembic downgrade -1
+
+migrate-downgrade-base:
+	poetry run alembic downgrade base
+
+migrate-stamp:
+	poetry run alembic stamp head
+
+migrate-show:
+	poetry run alembic show
