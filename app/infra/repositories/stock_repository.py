@@ -10,7 +10,7 @@ from app.infra.repositories.models.sqlalchemy_stock_model import StockModel
 
 class StockRepository(ABC):
     @abstractmethod
-    async def find_by_symbol(self, symbol: str) -> Optional[Stock]:
+    async def find_by_symbol(self, stock_symbol: str) -> Optional[Stock]:
         pass
 
     @abstractmethod
@@ -26,9 +26,9 @@ class SqlalchemyStockRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def find_by_symbol(self, symbol: str) -> Stock | None:
+    async def find_by_symbol(self, stock_symbol: str) -> Stock | None:
         result = await self.session.execute(
-            select(StockModel).where(StockModel.stock_symbol == symbol)
+            select(StockModel).where(StockModel.stock_symbol == stock_symbol)
         )
         model = result.scalar_one_or_none()
         if not model:
