@@ -24,6 +24,10 @@ class Cache(ABC):
     async def delete(self, key: str) -> None:
         pass
 
+    @abstractmethod
+    async def ping(self) -> bool:
+        pass
+
 
 class RedisCache(Cache):
     def __init__(self):
@@ -39,3 +43,6 @@ class RedisCache(Cache):
 
     async def delete(self, key: str) -> None:
         await self.client.delete(key)
+
+    async def ping(self) -> bool:
+        await self.client.ping()
