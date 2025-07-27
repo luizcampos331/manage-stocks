@@ -1,7 +1,8 @@
 import json
-from datetime import date, timedelta
+from datetime import date
 from typing import List, TypedDict
 
+from app.domain.services.get_last_market_day_service import get_last_market_day_service
 from app.infra.gateways.stock_values_gateway import StockValues, StockValuesGateway
 from app.infra.gateways.stock_web_scraping_gateway import (
     StockCompetitors,
@@ -43,10 +44,11 @@ class GetStockDetailsUseCase:
         if stock_cached:
             return json.loads(stock_cached)
 
+        request_data = get_last_market_day_service()
         stock = await self.stock_repository.find_by_symbol(stock_symbol)
         stock_values = await self.stock_values_gateway.get_by_symbol(
             data={
-                "date": date.today() - timedelta(days=1),
+                "date": request_data,
                 "stock_symbol": stock_symbol,
             }
         )
@@ -58,7 +60,7 @@ class GetStockDetailsUseCase:
             "status": stock_values["status"],
             "purchased_amount": stock.balance if stock else 0,
             "purchased_status": "purchased" if stock else "not_purchased",
-            "request_data": date.today() - timedelta(days=1),
+            "request_data": request_data,
             "company_code": stock_symbol,
             "company_name": stock_web_scraping["company_name"],
             "stock_values": stock_values["stock_values"],
