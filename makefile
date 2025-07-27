@@ -4,6 +4,9 @@ run:
 test:
 	poetry run pytest
 
+test-cov:
+	poetry run pytest --cov=app --cov-report=term --cov-report=html
+
 lint:
 	poetry run ruff check .
 

@@ -56,8 +56,8 @@ class GetStockDetailsUseCase:
 
         stock_cached = {
             "status": stock_values["status"],
-            "purchased_amount:": stock.balance if stock else 0,
-            "purchased_status:": "purchased" if stock else "not_purchased",
+            "purchased_amount": stock.balance if stock else 0,
+            "purchased_status": "purchased" if stock else "not_purchased",
             "request_data": date.today() - timedelta(days=1),
             "company_code": stock_symbol,
             "company_name": stock_web_scraping["company_name"],

@@ -26,6 +26,10 @@ loguru = "^0.7.3"
 ruff = "^0.12.5"
 alembic = "^1.16.4"
 psycopg2-binary = "^2.9.10"
+pytest = "^8.4.1"
+pytest-asyncio = "^1.1.0"
+pytest-mock = "^3.14.1"
+pytest-cov = "^6.2.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
