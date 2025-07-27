@@ -26,13 +26,15 @@ async def test_register_stock_purchase_with_existing_stock():
 
     input_data: RegisterStockPurchaseInput = {
         "stock_symbol": "AAPL",
-        "amount": 5,
+        "amount": 5.1,
     }
 
     result = await use_case.execute(input_data)
 
-    assert result["message"] == "5 units of stock AAPL were added to your stock record"
-    assert existing_stock.balance == 15
+    assert (
+        result["message"] == "5.1 units of stock AAPL were added to your stock record"
+    )
+    assert existing_stock.balance == 15.1
     mock_stock_repository.update.assert_awaited_once_with(existing_stock)
     mock_stock_transaction_repository.create.assert_awaited_once()
     mock_cache.delete.assert_awaited_once_with(key="AAPL")
@@ -54,12 +56,14 @@ async def test_register_stock_purchase_with_new_stock():
 
     input_data: RegisterStockPurchaseInput = {
         "stock_symbol": "GOOG",
-        "amount": 20,
+        "amount": 20.3,
     }
 
     result = await use_case.execute(input_data)
 
-    assert result["message"] == "20 units of stock GOOG were added to your stock record"
+    assert (
+        result["message"] == "20.3 units of stock GOOG were added to your stock record"
+    )
     mock_stock_repository.create.assert_awaited_once()
     mock_stock_transaction_repository.create.assert_awaited_once()
     mock_cache.delete.assert_awaited_once_with(key="GOOG")
