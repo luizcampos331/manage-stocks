@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from datetime import date
 from typing import TypedDict
 
-from polygon import RESTClient
+from polygon import BadResponse, RESTClient
+
+from app.infra.exceptions.infra_exception import InfraException
 
 
 class GetStockValuesBySymbolInput(TypedDict):
@@ -38,18 +40,27 @@ class PolygonStockValuesGateway(StockValuesGateway):
     async def get_by_symbol(
         self, data: GetStockValuesBySymbolInput
     ) -> GetStockValuesBySymbolOutput:
-        result = self.client.get_daily_open_close_agg(
-            ticker=data["stock_symbol"],
-            date=data["date"].isoformat(),
-            adjusted="true",
-        )
+        try:
+            result = self.client.get_daily_open_close_agg(
+                ticker=data["stock_symbol"],
+                date=data["date"].isoformat(),
+                adjusted="true",
+            )
 
-        return {
-            "status": result.status,
-            "stock_values": {
-                "open": result.open,
-                "high": result.high,
-                "low": result.low,
-                "close": result.close,
-            },
-        }
+            return {
+                "status": result.status,
+                "stock_values": {
+                    "open": result.open,
+                    "high": result.high,
+                    "low": result.low,
+                    "close": result.close,
+                },
+            }
+        except BadResponse as e:
+            if "not_found" in str(e).lower():
+                raise InfraException(
+                    status="NOT_FOUND",
+                    message=f"Data not found for stock symbol '{data['stock_symbol']}' on {data['date'].isoformat()}.",
+                )
+
+            raise RuntimeError(f"Unexpected error from Polygon API: {str(e)}")
