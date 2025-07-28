@@ -88,5 +88,5 @@ async def test_get_stock_details_use_case_without_cache():
     mock_stock_repository.find_by_symbol.assert_awaited_once_with(stock_symbol)
     mock_stock_values_gateway.get_by_symbol.assert_awaited_once()
     mock_stock_web_scraping_gateway.scraping_by_symbol.assert_awaited_once_with(
-        stock_symbol
+        stock_symbol=stock_symbol
     )
