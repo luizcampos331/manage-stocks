@@ -39,21 +39,22 @@ class GetStockDetailsUseCase:
         self.cache = cache
 
     async def execute(self, stock_symbol: str) -> GetStockDetailsOutput:
-        stock_cached = await self.cache.get(key=stock_symbol)
+        upper_stock_symbol = stock_symbol.upper()
+        stock_cached = await self.cache.get(key=upper_stock_symbol)
 
         if stock_cached:
             return json.loads(stock_cached)
 
         request_data = get_last_market_day_service()
-        stock = await self.stock_repository.find_by_symbol(stock_symbol)
+        stock = await self.stock_repository.find_by_symbol(upper_stock_symbol)
         stock_values = await self.stock_values_gateway.get_by_symbol(
             data={
                 "date": request_data,
-                "stock_symbol": stock_symbol,
+                "stock_symbol": upper_stock_symbol,
             }
         )
         stock_web_scraping = await self.stock_web_scraping_gateway.scraping_by_symbol(
-            stock_symbol
+            stock_symbol=upper_stock_symbol
         )
 
         stock_cached = {
@@ -61,7 +62,7 @@ class GetStockDetailsUseCase:
             "purchased_amount": stock.balance if stock else 0,
             "purchased_status": "purchased" if stock else "not_purchased",
             "request_data": request_data,
-            "company_code": stock_symbol,
+            "company_code": upper_stock_symbol,
             "company_name": stock_web_scraping["company_name"],
             "stock_values": stock_values["stock_values"],
             "performance_data": stock_web_scraping["performance_data"],
@@ -70,7 +71,7 @@ class GetStockDetailsUseCase:
 
         await self.cache.set(
             data={
-                "key": stock_symbol,
+                "key": upper_stock_symbol,
                 "value": json.dumps(stock_cached, default=str),
                 "ttl": 900,
             }
