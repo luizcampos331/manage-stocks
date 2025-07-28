@@ -2,7 +2,6 @@ import asyncio
 import os
 from logging.config import fileConfig
 
-# Carregar variáveis de ambiente ANTES de importar os modelos
 from dotenv import load_dotenv
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -12,22 +11,18 @@ from alembic import context
 
 load_dotenv()
 
-# Importar os modelos para autogenerate
-from app.infra.database.sqlalchemy_database_config import BaseSqlalchemyDatabaseConfig
-
-# Configuração do Alembic
 config = context.config
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    raise ValueError("DATABASE_URL não definida no .env")
 
-# Configurar logging
+config.set_main_option("sqlalchemy.url", database_url)
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Metadata para autogenerate - usar o metadata dos modelos importados
-target_metadata = BaseSqlalchemyDatabaseConfig.metadata
-
 
 def get_url():
-    """Get database URL from environment variable"""
     return os.getenv(
         "DATABASE_URL",
         "postgresql+asyncpg://postgres:postgres@localhost:5432/manage_stocks",
@@ -35,11 +30,9 @@ def get_url():
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
     url = get_url()
     context.configure(
         url=url,
-        target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -49,14 +42,13 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(connection=connection)
 
     with context.begin_transaction():
         context.run_migrations()
 
 
 async def run_async_migrations() -> None:
-    """Run migrations in 'online' mode."""
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -70,7 +62,6 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
     asyncio.run(run_async_migrations())
 
 
