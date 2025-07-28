@@ -68,4 +68,4 @@ async def health(request: Request):
 
 @router.get("/", response_class=JSONResponse)
 def root():
-    return "API Account Transactions 0.1.0"
+    return "Manage Stocks API 0.1.0"
