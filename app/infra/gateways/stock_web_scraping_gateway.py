@@ -83,10 +83,10 @@ class MarketWatchStockWebScrapingGateway(StockWebScrapingGateway):
         }
 
     async def scraping_by_symbol(
-        self, symbol: str
+        self, stock_symbol: str
     ) -> GetStockWEbScrapingBySymbolOutput:
         resp = await self.client.get(
-            f"https://www.marketwatch.com/investing/stock/{symbol.lower()}"
+            f"https://www.marketwatch.com/investing/stock/{stock_symbol.lower()}"
         )
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
