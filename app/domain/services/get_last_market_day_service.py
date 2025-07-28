@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 
 import pendulum
 
@@ -8,16 +8,18 @@ def get_last_market_day_service() -> datetime.date:
 
     weekday = now_et.weekday()
 
-    if weekday == 5:
-        return (now_et - timedelta(days=1)).date()
+    if weekday == 0:
+        delta_days = 3
     elif weekday == 6:
-        return (now_et - timedelta(days=2)).date()
+        delta_days = 2
+    elif weekday == 5:
+        delta_days = 1
+    else:
+        delta_days = 1
 
-    market_close_et = time(hour=16, minute=0)
-    if now_et.time() < market_close_et:
-        prev_day = now_et - timedelta(days=1)
-        while prev_day.weekday() >= 5:
-            prev_day -= timedelta(days=1)
-        return prev_day.date()
+    last_market_day = now_et - timedelta(days=delta_days)
 
-    return now_et.date()
+    while last_market_day.weekday() >= 5:
+        last_market_day -= timedelta(days=1)
+
+    return last_market_day.date()
