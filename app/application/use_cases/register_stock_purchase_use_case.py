@@ -32,25 +32,28 @@ class RegisterStockPurchaseUseCase:
     async def execute(
         self, data: RegisterStockPurchaseInput
     ) -> RegisterStockPurchaseOutput:
-        stock = await self.stock_repository.find_by_symbol(data["stock_symbol"])
+        upper_stock_symbol = data["stock_symbol"].upper()
+        stock = await self.stock_repository.find_by_symbol(
+            stock_symbol=upper_stock_symbol
+        )
 
         if stock:
             stock.increment_balance(data["amount"])
             await self.stock_repository.update(stock)
         else:
-            stock = Stock(stock_symbol=data["stock_symbol"], balance=data["amount"])
+            stock = Stock(stock_symbol=upper_stock_symbol, balance=data["amount"])
             await self.stock_repository.create(data=stock)
 
         await self.stock_transaction_repository.create(
             data=StockTransaction(
-                stock_symbol=data["stock_symbol"], amount=data["amount"]
+                stock_symbol=upper_stock_symbol, amount=data["amount"]
             )
         )
-        await self.cache.delete(key=data["stock_symbol"])
+        await self.cache.delete(key=upper_stock_symbol)
 
         return {
             "message": (
-                f"{data['amount']} units of stock {data['stock_symbol']} "
+                f"{data['amount']} units of stock {upper_stock_symbol} "
                 "were added to your stock record"
             )
         }
