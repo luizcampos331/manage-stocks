@@ -9,10 +9,10 @@
   <a href="#package-how-to-download-the-project">Download</a> |
   <a href="#wrench-how-to-use">How to Use</a> |
   <a href="#test_tube-run-tests">Run Tests</a> |
-  <a href="#electric_plug-routes-use">Routes API</a> |
+  <a href="#electric_plug-api-routes">API Routes</a> |
   <a href="#building_construction-architecture">Architecture</a> |
-  <a href="#bust_in_silhouette-autor">Author</a> |
-  <a href="#pencil-licença">Licence</a>
+  <a href="#bust_in_silhouette-author">Author</a> |
+  <a href="#pencil-licence">Licence</a>
 </p>
 
 ## :gear: Requirements
@@ -99,8 +99,7 @@ This project uses automated tests to ensure code stability and reliability.
 Technologies Used
 - pytest — test framework
 
-## :electric_plug: Routes API
-## API Routes
+## :electric_plug: API Routes
 
 | Method | Route | Description |
 |-------|------|-----------|
@@ -254,7 +253,7 @@ Provides concrete implementations for interfaces used by upper layers:
 - **Makefile:** Provides commands to install dependencies, run the application, apply migrations with Alembic, run tests (pytest), and generate code coverage.
 - **Tests:** Tests are located in tests/, using pytest and pytest-asyncio. They simulate the application lifecycle using httpx.AsyncClient or FastAPI TestClient to test routes without starting the server.
 
-## :bust_in_silhouette: Author:
+## :bust_in_silhouette: Author
 Luiz Eduardo Campos da Silva</br>
 LinkedIn: <a href="https://www.linkedin.com/in/luiz-campos">@luiz-campos</a></br>
 Github: <a href="https://www.github.com/luizcampos331">@luizcampos331</a>
