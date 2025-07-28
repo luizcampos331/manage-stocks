@@ -117,8 +117,8 @@ Technologies Used
     "amount": 10
   }
 
-  // The amount field (a number) indicates the number of shares to be purchased
   ```
+The amount field (a number) indicates the number of shares to be purchased
 
 - **GET `/health`** and **GET `/`** – do not require additional parameters.
 
