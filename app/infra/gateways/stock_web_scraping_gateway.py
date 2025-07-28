@@ -1,11 +1,9 @@
-import os
 import re
 from abc import ABC, abstractmethod
 from typing import List, TypedDict
 
 import httpx
 from bs4 import BeautifulSoup
-from polygon import RESTClient
 
 
 class StockPerformanceData(TypedDict):
@@ -57,7 +55,9 @@ class MarketWatchStockWebScrapingGateway(StockWebScrapingGateway):
     }
 
     def __init__(self):
-        self.client = RESTClient(os.getenv("STOCK_API_KEY"))
+        self.client = httpx.AsyncClient(
+            headers=self.HEADERS, timeout=10, follow_redirects=True
+        )
 
     def parse_marketcap_data(self, marketcap_str: str) -> dict:
         marketcap_str = marketcap_str.strip()
@@ -85,58 +85,55 @@ class MarketWatchStockWebScrapingGateway(StockWebScrapingGateway):
     async def scraping_by_symbol(
         self, symbol: str
     ) -> GetStockWEbScrapingBySymbolOutput:
-        async with httpx.AsyncClient(
-            headers=self.HEADERS, timeout=10, follow_redirects=True
-        ) as client:
-            resp = await client.get(
-                f"https://www.marketwatch.com/investing/stock/{symbol.lower()}"
-            )
-            resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, "lxml")
+        resp = await self.client.get(
+            f"https://www.marketwatch.com/investing/stock/{symbol.lower()}"
+        )
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "lxml")
 
-            company_name_tag = soup.find("h1", class_="company__name")
-            company_name = (
-                company_name_tag.get_text(strip=True)
-                if company_name_tag
-                else "Unknown Company"
-            )
+        company_name_tag = soup.find("h1", class_="company__name")
+        company_name = (
+            company_name_tag.get_text(strip=True)
+            if company_name_tag
+            else "Unknown Company"
+        )
 
-            performance = {}
-            performance_table = soup.select_one("div.element--table.performance table")
-            if performance_table:
-                for row in performance_table.select("tr.table__row"):
-                    cols = row.find_all("td")
-                    if len(cols) >= 2:
-                        label = cols[0].get_text(strip=True)
-                        value_tag = cols[1].select_one("li.value.ignore-color")
-                        if value_tag:
-                            value_text = value_tag.get_text(strip=True).replace("%", "")
-                            key = self.PERFORMANCE_LABEL_MAP.get(label)
-                            if key:
-                                try:
-                                    performance[key] = float(value_text)
-                                except ValueError:
-                                    performance[key] = None
-
-            competitors = []
-            for row in soup.select("tbody.table__body tr.table__row"):
+        performance = {}
+        performance_table = soup.select_one("div.element--table.performance table")
+        if performance_table:
+            for row in performance_table.select("tr.table__row"):
                 cols = row.find_all("td")
-                if len(cols) >= 3:
-                    name = cols[0].get_text(strip=True)
-                    marketcap_str = cols[2].get_text(strip=True)
-                    marketcap_info = self.parse_marketcap_data(marketcap_str)
-                    competitors.append(
-                        {
-                            "name": name,
-                            "market_cap": {
-                                "currency": marketcap_info["symbol"],
-                                "value": marketcap_info["value"],
-                            },
-                        }
-                    )
+                if len(cols) >= 2:
+                    label = cols[0].get_text(strip=True)
+                    value_tag = cols[1].select_one("li.value.ignore-color")
+                    if value_tag:
+                        value_text = value_tag.get_text(strip=True).replace("%", "")
+                        key = self.PERFORMANCE_LABEL_MAP.get(label)
+                        if key:
+                            try:
+                                performance[key] = float(value_text)
+                            except ValueError:
+                                performance[key] = None
 
-            return {
-                "company_name": company_name,
-                "performance_data": performance,
-                "competitors": competitors,
-            }
+        competitors = []
+        for row in soup.select("tbody.table__body tr.table__row"):
+            cols = row.find_all("td")
+            if len(cols) >= 3:
+                name = cols[0].get_text(strip=True)
+                marketcap_str = cols[2].get_text(strip=True)
+                marketcap_info = self.parse_marketcap_data(marketcap_str)
+                competitors.append(
+                    {
+                        "name": name,
+                        "market_cap": {
+                            "currency": marketcap_info["symbol"],
+                            "value": marketcap_info["value"],
+                        },
+                    }
+                )
+
+        return {
+            "company_name": company_name,
+            "performance_data": performance,
+            "competitors": competitors,
+        }
